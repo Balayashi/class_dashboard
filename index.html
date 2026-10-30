@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Escolar - LG webOS</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="tv-canvas">
+    <!-- CABEÇALHO TV: Identificação e Relógio de Grande Porte -->
+    <header class="tv-header">
+      <div class="header-branding">
+        <span class="app-icon">🎓</span>
+        <div class="app-titles">
+          <h1>PAINEL ESCOLAR</h1>
+          <p class="subtitle">Acompanhamento de Testes, TPCs e Horários</p>
+        </div>
+      </div>
+
+      <div class="header-center-status">
+        <span class="status-indicator live" id="sync-status-dot"></span>
+        <span id="sync-status-text">Sincronizado</span>
+      </div>
+
+      <div class="header-clock-box">
+        <div class="clock-time" id="live-clock">--:--:--</div>
+        <div class="clock-date" id="live-date">Carregando data...</div>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL: Split Screen 38% / 62% -->
+    <main class="dashboard-grid">
+      
+      <!-- COLUNA ESQUERDA: ÁREA DE DESTAQUE - ALERTAS URGENTES (<= 2 DIAS) -->
+      <section class="panel panel-urgent" aria-label="Alertas Urgentes">
+        <div class="panel-header urgent-header">
+          <div class="title-with-badge">
+            <span class="alert-siren">🚨</span>
+            <h2>ALERTAS URGENTES</h2>
+          </div>
+          <span class="counter-badge" id="urgent-badge-count">0</span>
+        </div>
+        <p class="panel-subtext">Eventos críticos com prazo em 2 dias ou menos</p>
+
+        <!-- Container onde o app.js injetará dinamicamente os cartões urgentes -->
+        <div class="urgent-cards-list" id="urgent-cards-container">
+          <!-- Conteúdo gerado dinamicamente pelo app.js -->
+          <div class="loading-placeholder">A carregar alertas...</div>
+        </div>
+      </section>
+
+      <!-- COLUNA DIREITA: CALENDÁRIO GERAL & HORÁRIO -->
+      <section class="panel panel-general" aria-label="Calendário Geral e Horário">
+        
+        <!-- SECÇÃO SUPERIOR: Próximos Eventos (> 2 dias) -->
+        <div class="sub-panel calendar-sub-panel">
+          <div class="panel-header general-header">
+            <div class="title-with-badge">
+              <span class="section-icon">📅</span>
+              <h2>CALENDÁRIO GERAL (PRÓXIMAS SEMANAS)</h2>
+            </div>
+            <span class="info-badge" id="general-badge-count">0 eventos</span>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="tv-table" id="general-events-table">
+              <thead>
+                <tr>
+                  <th style="width: 14%;">TIPO</th>
+                  <th style="width: 22%;">DISCIPLINA</th>
+                  <th style="width: 38%;">CONTEÚDO / TAREFA</th>
+                  <th style="width: 14%;">DATA</th>
+                  <th style="width: 12%;">PRAZO</th>
+                </tr>
+              </thead>
+              <tbody id="general-events-tbody">
+                <!-- Linhas injetadas dinamicamente pelo app.js -->
+                <tr>
+                  <td colspan="5" class="table-loading">A carregar eventos da folha...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECÇÃO INFERIOR: Horário do Dia / Notas de Estudo -->
+        <div class="sub-panel schedule-sub-panel">
+          <div class="panel-header schedule-header">
+            <div class="title-with-badge">
+              <span class="section-icon">⏰</span>
+              <h2>HORÁRIO DO DIA & ROTINA</h2>
+            </div>
+            <span class="day-badge" id="schedule-day-label">Hoje</span>
+          </div>
+
+          <div class="schedule-grid" id="daily-schedule-container">
+            <div class="schedule-pill">
+              <span class="time">08:30 - 10:00</span>
+              <span class="subject">Matemática</span>
+              <span class="room">Sala 12</span>
+            </div>
+            <div class="schedule-pill">
+              <span class="time">10:15 - 11:45</span>
+              <span class="subject">Português</span>
+              <span class="room">Sala 08</span>
+            </div>
+            <div class="schedule-pill">
+              <span class="time">12:00 - 13:30</span>
+              <span class="subject">Físico-Química</span>
+              <span class="room">Lab 2</span>
+            </div>
+            <div class="schedule-pill">
+              <span class="time">14:30 - 16:00</span>
+              <span class="subject">História</span>
+              <span class="room">Sala 14</span>
+            </div>
+            <div class="schedule-pill study-time">
+              <span class="time">17:00 - 18:30</span>
+              <span class="subject">Bloco de Estudo & TPCs</span>
+              <span class="room">Casa</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- RODAPÉ INFORMATIVO -->
+    <footer class="tv-footer">
+      <div class="footer-item">
+        <span class="footer-label">Fonte de Dados:</span>
+        <span class="footer-value" id="source-url-label">Google Sheets (CSV Público)</span>
+      </div>
+      <div class="footer-item">
+        <span class="footer-label">Última Atualização:</span>
+        <span class="footer-value" id="last-update-time">--:--</span>
+      </div>
+      <div class="footer-item">
+        <span class="footer-label">Ciclo de Atualização:</span>
+        <span class="footer-value">Automático (a cada 5 min)</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,581 @@
+/* ==========================================================================
+   DASHBOARD ESCOLAR - ESTILOS OTIMIZADOS PARA SMART TV (LG webOS)
+   Resolução Base: 1920x1080 (Full HD)
+   Diretriz de Design: 10-Foot UI (Leitura clara a 3 metros de distância)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. RESET E VARIÁVEIS DO SISTEMA
+   -------------------------------------------------------------------------- */
+:root {
+  /* Cores de Fundo (Dark Mode amigável para OLED e visão noturna) */
+  --bg-tv: #0c0f17;
+  --bg-panel: #161b26;
+  --bg-card: #1f2737;
+  --bg-card-hover: #29354a;
+  
+  /* Cores de Alerta Agressivo (<= 2 dias) */
+  --alert-red-dark: #7f1d1d;
+  --alert-red-base: #dc2626;
+  --alert-red-bright: #ef4444;
+  --alert-glow: rgba(239, 68, 68, 0.45);
+  --badge-urgent-bg: #fee2e2;
+  --badge-urgent-text: #991b1b;
+  
+  /* Cores de Destaque e Neutras */
+  --color-primary: #38bdf8;
+  --color-accent: #f59e0b;
+  --color-success: #10b981;
+  
+  /* Tipografia e Contraste Alto (WCAG AAA) */
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  --border-color: #2e384d;
+  
+  /* Safe Area / Overscan Margins */
+  --safe-padding-v: 36px;
+  --safe-padding-h: 48px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden; /* Evita barras de rolagem indesejadas na TV */
+  background-color: var(--bg-tv);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  user-select: none; /* Desativa seleção de texto com ponteiro do comando */
+}
+
+/* --------------------------------------------------------------------------
+   2. ESTRUTURA PRINCIPAL (CANVAS 1920x1080)
+   -------------------------------------------------------------------------- */
+.tv-canvas {
+  width: 1920px;
+  height: 1080px;
+  padding: var(--safe-padding-v) var(--safe-padding-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   3. CABEÇALHO (TV HEADER)
+   -------------------------------------------------------------------------- */
+.tv-header {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-panel);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 0 36px;
+}
+
+.header-branding {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.app-icon {
+  font-size: 48px;
+}
+
+.app-titles h1 {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--text-main);
+}
+
+.app-titles .subtitle {
+  font-size: 20px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.header-center-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 10px 22px;
+  border-radius: 40px;
+  border: 1px solid var(--border-color);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.status-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-success);
+  box-shadow: 0 0 12px var(--color-success);
+}
+
+.status-indicator.offline {
+  background-color: var(--alert-red-bright);
+  box-shadow: 0 0 12px var(--alert-red-bright);
+}
+
+.header-clock-box {
+  text-align: right;
+}
+
+.clock-time {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #38bdf8;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.clock-date {
+  font-size: 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* --------------------------------------------------------------------------
+   4. GRELHA DE CONTEÚDO (SPLIT SCREEN: 38% ALERTA / 62% GERAL)
+   -------------------------------------------------------------------------- */
+.dashboard-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 38% 62%;
+  gap: 24px;
+  min-height: 0; /* Previne overflow no grid */
+}
+
+/* Painéis Base */
+.panel {
+  background-color: var(--bg-panel);
+  border-radius: 18px;
+  border: 2px solid var(--border-color);
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.panel-header h2 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.panel-subtext {
+  font-size: 20px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   5. COLUNA ESQUERDA: ALERTAS URGENTES (<= 2 DIAS) - ESTILO AGRESSIVO
+   -------------------------------------------------------------------------- */
+.panel-urgent {
+  background: linear-gradient(180deg, #1e1116 0%, #17131b 100%);
+  border: 3px solid rgba(239, 68, 68, 0.4);
+  box-shadow: inset 0 0 40px rgba(220, 38, 38, 0.08);
+}
+
+.urgent-header h2 {
+  color: #fca5a5;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+}
+
+.alert-siren {
+  font-size: 34px;
+  animation: siren-wiggle 1.5s infinite ease-in-out;
+}
+
+.counter-badge {
+  background-color: var(--alert-red-base);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 800;
+  padding: 4px 18px;
+  border-radius: 30px;
+  box-shadow: 0 0 16px var(--alert-glow);
+}
+
+/* Lista de Cartões de Alerta */
+.urgent-cards-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+/* CARTÃO DE ALERTA AGRESSIVO (COM ANIMAÇÃO DE PULSAÇÃO E TEXTO A PISCAR) */
+.card-urgent {
+  background: linear-gradient(135deg, var(--alert-red-dark) 0%, #450a0a 100%);
+  border: 3px solid var(--alert-red-bright);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 25px rgba(220, 38, 38, 0.35);
+  animation: pulse-glow 2.5s infinite alternate ease-in-out;
+  position: relative;
+}
+
+.card-urgent-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-urgent-type {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background-color: rgba(0, 0, 0, 0.45);
+  padding: 4px 14px;
+  border-radius: 8px;
+  color: #fecaca;
+}
+
+/* TEXTO A PISCAR / DESTAQUE AGRESSIVO DE PROXIMIDADE */
+.card-urgent-countdown {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  background: #b91c1c;
+  padding: 6px 18px;
+  border-radius: 30px;
+  border: 2px solid #fecaca;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: aggressive-blink 1s infinite alternate;
+}
+
+.card-urgent-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.card-urgent-subject {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fef08a; /* Amarelo de alto contraste */
+}
+
+.card-urgent-desc {
+  font-size: 22px;
+  color: #fce7f3;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.card-urgent-date {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fca5a5;
+  margin-top: 4px;
+}
+
+/* Estado Vazio (Sem Alertas) */
+.empty-alert-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: rgba(16, 185, 129, 0.08);
+  border: 2px dashed rgba(16, 185, 129, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  gap: 16px;
+}
+
+.empty-alert-icon {
+  font-size: 56px;
+}
+
+.empty-alert-text {
+  font-size: 28px;
+  font-weight: 700;
+  color: #a7f3d0;
+}
+
+.empty-alert-sub {
+  font-size: 22px;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   6. COLUNA DIREITA: CALENDÁRIO GERAL & HORÁRIO
+   -------------------------------------------------------------------------- */
+.panel-general {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 28px;
+}
+
+.sub-panel {
+  background-color: #121620;
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.calendar-sub-panel {
+  flex: 1.3;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.schedule-sub-panel {
+  flex: 0.9;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-badge {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: rgba(56, 189, 248, 0.12);
+  padding: 4px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.day-badge {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: rgba(245, 158, 11, 0.12);
+  padding: 4px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Tabela TV com Linhas Altas e Fontes Grandes */
+.table-wrapper {
+  flex: 1;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.tv-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tv-table th {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--border-color);
+  letter-spacing: 1px;
+}
+
+.tv-table td {
+  font-size: 24px;
+  font-weight: 600;
+  padding: 14px 14px;
+  border-bottom: 1px solid rgba(46, 56, 77, 0.5);
+  vertical-align: middle;
+}
+
+.tv-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Tags de Tipo de Evento na Tabela */
+.tag-event {
+  display: inline-block;
+  font-size: 19px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag-teste {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.tag-tpc {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.tag-trabalho {
+  background-color: #8b5cf6;
+  color: #ffffff;
+}
+
+.tag-aviso {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.tag-days-remaining {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #cbd5e1;
+  background: #1e293b;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+/* Grelha do Horário Diário */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.schedule-pill {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.schedule-pill .time {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.schedule-pill .subject {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.schedule-pill .room {
+  font-size: 20px;
+  color: var(--text-muted);
+}
+
+.schedule-pill.study-time {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.schedule-pill.study-time .subject {
+  color: #fef08a;
+}
+
+/* --------------------------------------------------------------------------
+   7. RODAPÉ (TV FOOTER)
+   -------------------------------------------------------------------------- */
+.tv-footer {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 22px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+}
+
+.footer-item {
+  display: flex;
+  gap: 10px;
+}
+
+.footer-label {
+  font-weight: 500;
+}
+
+.footer-value {
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   8. ANIMAÇÕES HARDWARE-ACCELERATED (GPU FRIENDLY PARA TV)
+   -------------------------------------------------------------------------- */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 35px rgba(239, 68, 68, 0.65);
+    transform: scale(1.015);
+  }
+}
+
+@keyframes aggressive-blink {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    background-color: #dc2626;
+  }
+  50% {
+    opacity: 0.85;
+    background-color: #ef4444;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.04);
+    background-color: #991b1b;
+  }
+}
+
+@keyframes siren-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+
+.loading-placeholder, .table-loading {
+  font-size: 26px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 40px 0;
+}
+
