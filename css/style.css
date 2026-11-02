@@ -966,4 +966,183 @@ button:focus,
 .chip-dta .dot { background-color: #94a3b8; }
 
 
+/* ==========================================================================
+   OVERLAY DE ALERTA DE ARRANQUE (STARTUP ALERT)
+   Aparece ao ligar a TV se existirem eventos <= 2 dias
+   ========================================================================== */
+
+/* --- Fundo escuro semi-transparente que cobre o ecrã inteiro --- */
+.startup-alert-overlay {
+  position: fixed;
+  inset: 0; /* top: 0; right: 0; bottom: 0; left: 0 */
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Fade-in suave */
+  animation: startupFadeIn 0.5s ease forwards;
+}
+
+@keyframes startupFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* --- Caixa de alerta central --- */
+.startup-alert-box {
+  background: linear-gradient(145deg, #1a0808 0%, #2d0a0a 40%, #1e1116 100%);
+  border: 3px solid var(--alert-red-bright);
+  border-radius: 28px;
+  padding: 52px 72px;
+  max-width: 960px;
+  width: 90%;
+  text-align: center;
+  /* Sombra vermelha a pulsar para chamar a atenção */
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: startupBoxPulse 2s ease-in-out infinite;
+}
+
+@keyframes startupBoxPulse {
+  0%   { box-shadow: 0 0 30px 4px rgba(239, 68, 68, 0.5); }
+  50%  { box-shadow: 0 0 60px 16px rgba(239, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 30px 4px rgba(239, 68, 68, 0.5); }
+}
+
+/* --- Ícone grande pulsante --- */
+.startup-alert-icon {
+  font-size: 72px;
+  line-height: 1;
+  margin-bottom: 18px;
+  display: block;
+  animation: startupIconBounce 1s ease-in-out infinite alternate;
+}
+
+@keyframes startupIconBounce {
+  from { transform: scale(1);    }
+  to   { transform: scale(1.15); }
+}
+
+/* --- Título e subtítulo --- */
+.startup-alert-title {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--alert-red-bright);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.startup-alert-subtitle {
+  font-size: 26px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* --- Lista de eventos urgentes --- */
+.startup-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+/* Item individual de evento urgente no overlay */
+.startup-event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1.5px solid rgba(239, 68, 68, 0.4);
+  border-radius: 14px;
+  padding: 16px 28px;
+  gap: 20px;
+  text-align: left;
+}
+
+.startup-event-type {
+  display: inline-block;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: var(--alert-red-bright);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 12px;
+  flex-shrink: 0;
+}
+
+.startup-event-info {
+  flex: 1;
+}
+
+.startup-event-subject {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  display: block;
+}
+
+.startup-event-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  display: block;
+}
+
+.startup-event-deadline {
+  font-size: 26px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.startup-deadline-today  { color: #ff4444; }
+.startup-deadline-amanha { color: #f59e0b; }
+.startup-deadline-2days  { color: #facc15; }
+
+/* --- Barra de progresso de auto-fecho --- */
+.startup-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.startup-progress-fill {
+  height: 100%;
+  background: var(--alert-red-bright);
+  border-radius: 3px;
+  width: 100%;
+  /* A animação de redução é feita via JS (style.width) */
+  transition: width 1s linear;
+}
+
+/* --- Dica de interação --- */
+.startup-dismiss-hint {
+  font-size: 22px;
+  color: var(--text-muted);
+}
+
+.startup-dismiss-hint kbd {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-family: inherit;
+  font-size: 20px;
+  color: #fff;
+}
+
+/* Animação de saída do overlay */
+.startup-alert-overlay.closing {
+  animation: startupFadeOut 0.4s ease forwards;
+}
+
+@keyframes startupFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
 

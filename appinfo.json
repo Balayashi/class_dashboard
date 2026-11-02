@@ -1,16 +1,17 @@
 {
   "id": "com.escola.dashboard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "vendor": "Escola Dashboard",
   "type": "web",
   "main": "index.html",
   "title": "Dashboard Escolar",
   "icon": "icon.png",
-  "largeIcon": "icon.png",
+  "largeIcon": "assets/largeIcon.png",
   "resolution": "1920x1080",
-  "bgColor": "#121214",
+  "bgColor": "#0c0f17",
   "transparent": false,
   "supportTouchMode": false,
+  "handlesRelaunch": true,
   "network": true
 }
 

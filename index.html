@@ -165,6 +165,35 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- OVERLAY DE ALERTA DE ARRANQUE (gerado dinamicamente)         -->
+  <!-- Aparece quando a app liga e existem eventos <= 2 dias        -->
+  <!-- ============================================================ -->
+  <div class="startup-alert-overlay" id="startup-overlay" style="display:none;" role="alertdialog" aria-modal="true" aria-label="Alerta de eventos urgentes">
+    <div class="startup-alert-box">
+      <!-- Ícone pulsante -->
+      <div class="startup-alert-icon">🚨</div>
+
+      <!-- Título do alerta -->
+      <h2 class="startup-alert-title">ATENÇÃO! Tens Eventos Urgentes</h2>
+      <p class="startup-alert-subtitle">Os seguintes Testes e/ou TPCs ocorrem muito em breve:</p>
+
+      <!-- Lista de eventos urgentes - preenchida pelo JS -->
+      <div class="startup-alert-list" id="startup-alert-list"></div>
+
+      <!-- Barra de progresso de auto-fechar -->
+      <div class="startup-progress-bar">
+        <div class="startup-progress-fill" id="startup-progress-fill"></div>
+      </div>
+
+      <!-- Dica de interação -->
+      <p class="startup-dismiss-hint">
+        A fechar automaticamente em <span id="startup-countdown">10</span>s
+        &nbsp;•&nbsp; Pressione <kbd>OK</kbd> ou qualquer tecla para fechar
+      </p>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>

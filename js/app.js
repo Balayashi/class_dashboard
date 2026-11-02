@@ -590,6 +590,9 @@ function renderDashboard(events) {
   urgentEvents.sort((a, b) => a.diffDays - b.diffDays);
   generalEvents.sort((a, b) => a.diffDays - b.diffDays);
 
+  // Guarda os eventos urgentes para que o arranque possa aceder após o fetch
+  renderDashboard._lastUrgentEvents = urgentEvents;
+
   // --------------------------------------------------------------------------
   // A) RENDERIZAÇÃO DA ZONA DE ALERTAS URGENTES (<= 2 DIAS)
   // --------------------------------------------------------------------------
@@ -799,6 +802,158 @@ async function fetchSheetData() {
 }
 
 // ----------------------------------------------------------------------------
+// 8. ALERTA DE ARRANQUE: Modal visível ao ligar a TV com eventos urgentes
+// ----------------------------------------------------------------------------
+
+/**
+ * Função central do alerta de arranque.
+ * Deve ser chamada APÓS o primeiro renderDashboard() completar.
+ * 
+ * Estratégia:
+ * 1. Tenta usar a API nativa webOS (webOS.service Luna) para um toast do sistema.
+ * 2. Em fallback (TV sem webOS ou versão antiga), exibe o modal DOM customizado.
+ * 
+ * @param {Array} urgentEvents - Array de eventos já enriquecidos com {diffDays, ...}
+ */
+function showStartupAlertIfNeeded(urgentEvents) {
+  // Só mostra o alerta se houver eventos urgentes NÃO concluídos
+  const pendingUrgent = urgentEvents.filter(ev => {
+    const taskId = `${ev.disciplina}_${ev.titulo}`.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    return !isTaskDone(taskId);
+  });
+
+  if (pendingUrgent.length === 0) return; // Sem alertas necessários
+
+  // --- TENTATIVA 1: webOS Luna Service (notificação nativa do sistema) ---
+  try {
+    if (window.webOS && webOS.service && webOS.service.request) {
+      const eventLines = pendingUrgent.map(ev => {
+        const dayLabel = ev.diffDays === 0 ? "HOJE" : ev.diffDays === 1 ? "AMANHÃ" : `Em ${ev.diffDays} dias`;
+        return `${ev.tipo} de ${ev.disciplina}: ${ev.titulo} (${dayLabel})`;
+      }).join("\n");
+
+      webOS.service.request("luna://com.webos.notification", {
+        method: "createAlert",
+        parameters: {
+          message: `⚠️ Tens ${pendingUrgent.length} evento(s) urgente(s)!\n${eventLines}`,
+          buttons: [{ label: "Ver Alertas", onclick: "window._closeStartupModal && window._closeStartupModal()" }],
+          onSuccess: () => console.log("[webOS Dashboard] Notificação nativa criada com sucesso."),
+          onFailure: () => showStartupDOMModal(pendingUrgent)  // Fallback DOM
+        }
+      });
+      // Mesmo com Luna, mostramos o modal DOM para ficar visível no app
+      showStartupDOMModal(pendingUrgent);
+      return;
+    }
+  } catch (e) {
+    console.warn("[webOS Dashboard] Luna Service não disponível, usando modal DOM:", e.message);
+  }
+
+  // --- FALLBACK: Modal DOM personalizado ---
+  showStartupDOMModal(pendingUrgent);
+}
+
+/**
+ * Constrói e exibe o overlay modal de alerta de arranque no DOM.
+ * Com auto-fecho após 10 segundos + barra de progresso visual.
+ * Qualquer tecla/botão do comando fecha o modal antecipadamente.
+ */
+function showStartupDOMModal(urgentEvents) {
+  const overlay = document.getElementById("startup-overlay");
+  const listEl  = document.getElementById("startup-alert-list");
+  const countdownEl = document.getElementById("startup-countdown");
+  const progressFill = document.getElementById("startup-progress-fill");
+
+  if (!overlay || !listEl) return;
+
+  // --- Preenche a lista de eventos urgentes ---
+  listEl.innerHTML = urgentEvents.map(ev => {
+    let deadlineClass = "startup-deadline-2days";
+    let deadlineLabel = `⏳ Em ${ev.diffDays} dias`;
+
+    if (ev.diffDays === 0) {
+      deadlineClass = "startup-deadline-today";
+      deadlineLabel = "🚨 HOJE!";
+    } else if (ev.diffDays === 1) {
+      deadlineClass = "startup-deadline-amanha";
+      deadlineLabel = "⚠️ AMANHÃ!";
+    }
+
+    return `
+      <div class="startup-event-item">
+        <span class="startup-event-type">${escapeHtml(ev.tipo)}</span>
+        <div class="startup-event-info">
+          <span class="startup-event-subject">${escapeHtml(ev.disciplina)}</span>
+          <span class="startup-event-title">${escapeHtml(ev.titulo)}</span>
+        </div>
+        <span class="startup-event-deadline ${deadlineClass}">${deadlineLabel}</span>
+      </div>
+    `;
+  }).join("");
+
+  // --- Mostra o overlay ---
+  overlay.style.display = "flex";
+
+  // --- Lógica de auto-fecho com contagem regressiva (10 segundos) ---
+  const TOTAL_SECONDS = 10;
+  let secondsLeft = TOTAL_SECONDS;
+  let isClosed = false;
+
+  // Função interna para fechar o modal (com animação de saída)
+  function closeModal() {
+    if (isClosed) return;
+    isClosed = true;
+
+    clearInterval(countdownInterval);
+    clearInterval(progressInterval);
+
+    overlay.classList.add("closing");
+    // Aguarda a animação de fade-out (400ms) antes de ocultar
+    setTimeout(() => {
+      overlay.style.display = "none";
+      overlay.classList.remove("closing");
+    }, 420);
+  }
+
+  // Expõe a função de fecho globalmente para o botão Luna Service
+  window._closeStartupModal = closeModal;
+
+  // Atualização do contador visual (1x por segundo)
+  const countdownInterval = setInterval(() => {
+    secondsLeft--;
+    if (countdownEl) countdownEl.textContent = secondsLeft;
+    if (secondsLeft <= 0) closeModal();
+  }, 1000);
+
+  // Barra de progresso (atualiza a cada 100ms para animação suave)
+  let progressTick = 0;
+  const totalTicks = TOTAL_SECONDS * 10; // 100 ticks
+  const progressInterval = setInterval(() => {
+    progressTick++;
+    const percent = Math.max(0, 100 - (progressTick / totalTicks) * 100);
+    if (progressFill) progressFill.style.width = percent + "%";
+    if (progressTick >= totalTicks) clearInterval(progressInterval);
+  }, 100);
+
+  // Fecha ao pressionar qualquer tecla do comando/teclado
+  function onAnyKey(e) {
+    // Ignora apenas as teclas de volume que não são navegação
+    if (["VolumeUp", "VolumeDown"].includes(e.key)) return;
+    closeModal();
+    document.removeEventListener("keydown", onAnyKey);
+  }
+  document.addEventListener("keydown", onAnyKey);
+
+  // Fecha ao clicar no overlay (para testes no PC com rato)
+  overlay.addEventListener("click", function onOverlayClick(e) {
+    if (e.target === overlay) {
+      closeModal();
+      overlay.removeEventListener("click", onOverlayClick);
+    }
+  });
+}
+
+// ----------------------------------------------------------------------------
 // 8. UTILITÁRIOS DE SEGURANÇA
 // ----------------------------------------------------------------------------
 function escapeHtml(str) {
@@ -833,19 +988,27 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  console.log("[LG webOS] Inicializando Dashboard Escolar...");
+window.addEventListener("DOMContentLoaded", async () => {
+  console.log("[LG webOS] Inicializando Dashboard Escolar v1.1.0...");
 
-  // 1. Inicia o relógio
+  // 1. Inicia o relógio em tempo real
   initLiveClock();
 
   // 2. Inicia o horário escolar da Turma 5º G com abas interativas
   initScheduleTabs();
 
   // 3. Primeiro fetch de dados dos testes e TPCs
-  fetchSheetData();
+  //    Aguarda a conclusão para depois verificar alertas de arranque
+  await fetchSheetData();
 
-  // 4. Configura o polling regular de atualização
+  // 4. Mostra o alerta de arranque se existirem eventos urgentes pendentes
+  //    (com um pequeno atraso para a TV renderizar o UI primeiro)
+  const urgentOnStart = renderDashboard._lastUrgentEvents || [];
+  if (urgentOnStart.length > 0) {
+    setTimeout(() => showStartupAlertIfNeeded(urgentOnStart), 800);
+  }
+
+  // 5. Configura o polling regular de atualização (não mostra alerta nas atualizações subsequentes)
   setInterval(fetchSheetData, CONFIG.REFRESH_INTERVAL_MS);
 });
 
