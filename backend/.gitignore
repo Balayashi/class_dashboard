@@ -1,0 +1,35 @@
+# ============================================================
+# Dashboard Escolar — .gitignore do Backend
+# NUNCA commitar estes ficheiros
+# ============================================================
+
+# Credenciais e segredos
+.env
+*.json
+!.env.example
+
+# Perfis de browser (sessões guardadas)
+.chromium_profile*/
+
+# Logs e execuções
+logs/
+last_run.json
+*_debug.png
+*_error.png
+*_post_login.png
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Windows
+Thumbs.db
+desktop.ini
+
